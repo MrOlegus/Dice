@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      @font-face {
+        font-family: "main";
+        src: url("/public/images/fLight.otf?v=1679942907072");
+      }
+
+      .content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #roll-btn,
+      #pass-btn {
+        color: #fff;
+
+        margin: min(1vw, 3.75px) min(1vw, 3.75px) min(1vw, 3.75px)
+          min(1vw, 3.75px);
+
+        font-family: "main";
+        font-size: min(4vw, 15px);
+
+        padding: 10px 20px;
+        text-align: center;
+        font-weight: bold;
+        border: 1px solid #fff;
+      }
+
+      #roll-btn {
+        background: #105D9D;
+      }
+      #pass-btn {
+        background: #009629;
+      }
+
+      #roll-btn:disabled,
+      #pass-btn:disabled {
+        background-color: rgb(0, 19, 23);
+        color: #979797;
+        border: 1px solid #979797;
+      }
+
+      #buttons_container {
+        display: flex;
+
+        position: absolute;
+        left: calc(50vw - min(40vw, 150px) - min(1vw, 3.75px) * 2);
+        top: calc(96vh - min(10vw, 37.5px) - min(1vw, 3.75px) * 2);
+      }
+
+      #message span {
+        color: #009629;
+      }
+
+      #message.active {
+        width: min(50vw, 400px);
+        
+        position: absolute;
+        left: calc(50vw - min(50vw, 400px) / 2);
+        top: calc(96vh - min(10vw, 37.5px) - min(1vw, 3.75px) * 2 - 15vh);
+        
+        font-size: min(5vh, 30px);
+        font-family: "main";
+        text-align: center;
+        
+        color: #979797;
+        
+        overflow:hidden;
+        margin-top:-20px;
+        
+        transition: 1s;
+      }
+      
+      #message.hide {
+        width: min(50vw, 400px);
+        
+        position: absolute;
+        left: calc(50vw - min(50vw, 400px) / 2);
+        top: calc(96vh - min(10vw, 37.5px) - min(1vw, 3.75px) * 2 - 15vh);
+        
+        font-size: min(5vh, 30px);
+        font-family: "main";
+        text-align: center;
+        
+        color: rgba(250, 255, 255, 0);
+        
+        overflow:hidden;
+        margin-top:-20px;
+        
+        transition: 1s;
+      }
+
+      #game_state {
+        position: absolute;
+        left: 1vw;
+        top:  20px;
+
+        padding: 1% 1% 1% 1%;
+
+        width: min(20vw, 250px);
+        max-height: calc(50% - 20px);
+        height: 100%;
+
+        color: #979797;
+
+        border-style: solid;
+        border-width: min(0.5vw, 4px);
+        border-top-color: #00080F;
+        border-left-color: #00080F;
+        border-right-color: #00080F;
+        border-bottom-color: #00080F;
+
+        font-family: "main";
+        
+        margin: 0;
+      }
+
+      #goal {
+        color: #105D9D;
+        font-weight: bold;
+      }
+
+      #time {
+        color: #009629;
+      }
+
+      #goal,
+      #user0,
+      #user1,
+      #score0,
+      #score1,
+      #bolt0,
+      #bolt1,
+      #time {
+        font-size: min(3vh, 20px);
+        margin: 0;
+      }
+
+      #goal,
+      #bolt0,
+      #bolt1,
+      #time {
+        margin-bottom: min(2vh, 20px);
+      }
+
+      #combs {
+        position: absolute;
+
+        padding: 1% 1% 1% 1%;
+
+        width: min(20vw, 250px);
+        max-height: calc(50% - 20px);
+        height: 100%;
+
+        left: 1vw;
+        bottom: 20px;
+        overflow-x: hidden;
+        overflow-y: scroll;
+
+        color: #979797;
+
+        background: #00080F;
+
+        border-style: solid;
+        border-width: min(0.5vw, 4px);
+        border-top-color: #00080F;
+        border-left-color: #00080F;
+        border-right-color: #00080F;
+        border-bottom-color: #00080F;
+
+        font-family: "main";
+        font-size: min(1.5vw, 18.75px);
+      }
+
+      #user0,
+      #user1 {
+        color: #FFFFFF;
+        font-weight: bold;
+      }
+
+      #user0.active,
+      #user1.active {
+        color: #009629;
+      }
+
+      .comb {
+        text-align: right;
+        width: calc(min(2vw, 25px) * 9);
+        height: min(2vw, 25px);
+        background-position: min(0vw, 0px), min(2vw, 25px), min(4vw, 50px),
+          min(6vw, 75px), min(8vw, 100px), min(10vw, 125px);
+        background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+        background-size: contain;
+        margin: 5px 5px 5px 5px;
+      }
+
+      .comb.c1 {
+        background-image: url("/public/images/1.PNG?v=1679942992482");
+      }
+
+      .comb.c5 {
+        background-image: url("/public/images/5.PNG?v=1679942994220");
+      }
+
+      .comb.c111 {
+        background-image: url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482");
+      }
+
+      .comb.c1111 {
+        background-image: url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482");
+      }
+
+      .comb.c11111 {
+        background-image: url("/public/images/1.PNG?v=1679942992482.PNG"),
+          url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/1.PNG?v=1679942992482");
+      }
+
+      .comb.c222 {
+        background-image: url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939");
+      }
+
+      .comb.c2222 {
+        background-image: url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939");
+      }
+
+      .comb.c22222 {
+        background-image: url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/2.PNG?v=1679942992939");
+      }
+
+      .comb.c333 {
+        background-image: url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377");
+      }
+
+      .comb.c3333 {
+        background-image: url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377");
+      }
+
+      .comb.c33333 {
+        background-image: url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/3.PNG?v=1679942993377");
+      }
+
+      .comb.c444 {
+        background-image: url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804");
+      }
+
+      .comb.c4444 {
+        background-image: url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804");
+      }
+
+      .comb.c44444 {
+        background-image: url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/4.PNG?v=1679942993804");
+      }
+
+      .comb.c555 {
+        background-image: url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220");
+      }
+
+      .comb.c5555 {
+        background-image: url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220");
+      }
+
+      .comb.c55555 {
+        background-image: url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/5.PNG?v=1679942994220");
+      }
+
+      .comb.c666 {
+        background-image: url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627");
+      }
+
+      .comb.c6666 {
+        background-image: url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627");
+      }
+
+      .comb.c66666 {
+        background-image: url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627"),
+          url("/public/images/6.PNG?v=1679942994627");
+      }
+
+      .comb.c12345 {
+        background-image: url("/public/images/1.PNG?v=1679942992482"),
+          url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/5.PNG?v=1679942994220");
+      }
+
+      .comb.c23456 {
+        background-image: url("/public/images/2.PNG?v=1679942992939"),
+          url("/public/images/3.PNG?v=1679942993377"),
+          url("/public/images/4.PNG?v=1679942993804"),
+          url("/public/images/5.PNG?v=1679942994220"),
+          url("/public/images/6.PNG?v=1679942994627");
+      }
+
+      /* SCROLLBAR FOR SECTIONS*/
+      #combs {
+        overflow-y: auto;
+        color: #fff;
+      }
+
+      #combs::-webkit-scrollbar {
+        width: max(0.5vw, 5px);
+        height: max(0.5vw, 5px);
+        background-color: rgba(0, 0, 0, 0);
+      }
+
+      #combs::-webkit-scrollbar-thumb {
+        background-color: rgba(1, 37, 45, 0.96);
+        border-radius: 9em;
+        box-shadow: inset max(0.025vw, 0.25px) max(0.025vw, 0.25px)
+          max(0.25vw, 2.5px) #f3faf7;
+      }
+
+      #combs::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0, 21, 26, 0.99);
+      }
+
+      #combs::-webkit-scrollbar-button:vertical:start:decrement {
+        height: 3%;
+        visibility: hidden;
+      }
+
+      #combs::-webkit-scrollbar-button:vertical:end:increment {
+        height: 3%;
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body id="body">
+    <div class="content">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div id="game_state">
+      <p id="goal">Игра до n очков</p>
+
+      <p id="user0">Игрок 0</p>
+      <p id="score0">Очки: очки 0</p>
+      <p id="bolt0">Болты: болты 0</p>
+
+      <p id="user1">Игрок 1</p>
+      <p id="score1">Очки: очки 1</p>
+      <p id="bolt1">Болты: болты 1</p>
+      
+      <p id="time">Время на ход: 20</p>
+    </div>
+
+    <div id="combs">
+      <div class="comb c1">10</div>
+      <div class="comb c5">5</div>
+      <div class="comb c111">100</div>
+      <div class="comb c1111">200</div>
+      <div class="comb c11111">1000</div>
+      <div class="comb c222">20</div>
+      <div class="comb c2222">40</div>
+      <div class="comb c22222">200</div>
+      <div class="comb c333">30</div>
+      <div class="comb c3333">60</div>
+      <div class="comb c33333">300</div>
+      <div class="comb c444">40</div>
+      <div class="comb c4444">80</div>
+      <div class="comb c44444">400</div>
+      <div class="comb c555">50</div>
+      <div class="comb c5555">100</div>
+      <div class="comb c55555">500</div>
+      <div class="comb c666">60</div>
+      <div class="comb c6666">120</div>
+      <div class="comb c66666">600</div>
+      <div class="comb c12345">125</div>
+      <div class="comb c23456">250</div>
+    </div>
+
+    <div id="buttons_container">
+      <button id="roll-btn">Сделать бросок</button>
+      <button id="pass-btn">Записать результат</button>
+      <!--<div id="current-points">123</button>-->
+    </div>
+    
+    <div id="message" class="hide">
+      Сообщение!
+    </div>
+  
+    <section class="music">
+    <audio id="audiop0" preload="auto" src="/public/images/dice_plane.mp3?v=1680209337327"></audio>
+    <audio id="audiop1" preload="auto" src="/public/images/dice_plane.mp3?v=1680209337327"></audio>
+    <audio id="audiop2" preload="auto" src="/public/images/dice_plane.mp3?v=1680209337327"></audio>
+    <audio id="audiop3" preload="auto" src="/public/images/dice_plane.mp3?v=1680209337327"></audio>
+    <audio id="audiop4" preload="auto" src="/public/images/dice_plane.mp3?v=1680209337327"></audio>
+    
+    <audio id="audiod0" preload="auto" src="/public/images/dice_dice.mp3?v=1680207589094"></audio>
+    <audio id="audiod1" preload="auto" src="/public/images/dice_dice.mp3?v=1680207589094"></audio>
+    <audio id="audiod2" preload="auto" src="/public/images/dice_dice.mp3?v=1680207589094"></audio>
+    <audio id="audiod3" preload="auto" src="/public/images/dice_dice.mp3?v=1680207589094"></audio>
+    <audio id="audiod4" preload="auto" src="/public/images/dice_dice.mp3?v=1680207589094"></audio>
+    
+    <audio id="background_music" preload="auto" loop="true" src="/public/images/background.mp3?v=1680212856613"></audio>
+    </section>
+  
+    <script type="module" src="js/main.js"></script>
+
+    <script type="module">
+      import throwDice from "/js/main.js";
+      body.onclick = () => { 
+        background_music.volume = 0.5;
+        background_music.play();
+      }
+
+      //#region инициализация
+      let params = window.location.search
+        .replace("?", "")
+        .split("&")
+        .reduce(function (p, e) {
+          var a = e.split("=");
+          p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+          return p;
+        }, {});
+
+      let user_id = params["user_id"];
+      let users = [];
+      let user_num = null;
+      let names = null;
+
+      let game_id = `${params["room_id"]}:${params["battle_id"]}`;
+      let game = null;
+      //endregion
+
+      //#region сокеты
+      let wsClient = new WebSocket("wss://dice1000.glitch.me");
+
+      wsClient.onopen = function () {
+        console.log("Подлючение удалось");
+        wsClient.send(
+          JSON.stringify({
+            type: "hello",
+            data: { user_id: user_id, game_id: game_id },
+          })
+        );
+      };
+
+      wsClient.onmessage = async function (message) {
+        let json = JSON.parse(message.data);
+        let data = json.data;
+        switch (json.type) {
+          case "info":
+            names = data.names;
+            [user0.textContent, user1.textContent] = data.names;
+            users = data.users;
+            break;
+          case "message": {
+            if (!isShow) {
+              showMessage(data.message);
+            }
+          }
+          case "update":
+            if (!isShow && game) {
+              if (game.order !== data.order &&
+                  game.scores[game.order] > 50 && data.scores[game.oder] === 0)
+                showMessage(`<span>Самосвал!</span><br>${names[data.order]}, Ваш ход`); else
+              if (game.order !== data.order &&
+                  (data.bolts[game.order] > game.bolts[game.order] ||
+                   data.scores[game.order] < game.scores[game.order]))
+                showMessage(`<span>Болт!</span><br>${names[data.order]}, Ваш ход`); else
+              if (game.order !== data.order &&
+                  data.scores[data.order] < game.scores[data.order])
+                showMessage(`<span>Обгон!</span><br>${names[data.order]}, Ваш ход`); else
+              if (game.order !== data.order)
+                showMessage(`<span>Записал</span><br>${names[data.order]}, Ваш ход`); else
+              if (data.bank > game.bank)
+                showMessage(`+${data.bank - game.bank}`);
+            }
+            
+            const isBochka0 = (data.scores[0] >= 500 && data.scores[0] < 600) || (data.scores[0] >= 900 && data.scores[0] < 1000);
+            const isBochka1 = (data.scores[1] >= 500 && data.scores[1] < 600) || (data.scores[1] >= 900 && data.scores[1] < 1000);
+            
+            game = data;
+            goal.innerHTML = `Игра до ${data.goal} очков`;
+            [score0.innerHTML, score1.innerHTML] = [
+              `Очки: ${data.scores[0]}` + (isBochka0 ? ' (бочка)' : ''),
+              `Очки: ${data.scores[1]}` + (isBochka1 ? ' (бочка)' : ''),
+            ];
+            [bolt0.innerHTML, bolt1.innerHTML] = [
+              `Болты: ${data.bolts[0]}`,
+              `Болты: ${data.bolts[1]}`,
+            ];
+            time.innerHTML = `Время на ход: ${data.time}`;
+            
+            document.getElementById('roll-btn').innerHTML = `Сделать бросок: ${data.dice}`;
+            document.getElementById('pass-btn').innerHTML = `Записать результат: ${data.bank}`;
+            
+            updateUI();
+            break;
+          case "move":
+            wsClient.send(
+              JSON.stringify({
+                type: "result",
+                data: {
+                  user_id: user_id,
+                  result: await throwDice(game.dice, data.randoms)
+                },
+              })
+            );
+            break;
+        }
+      };
+      //#endregion
+
+      //#region update UI
+      function updateUI() {
+        if (!game || game.pending === 'result') {
+          document.getElementById("roll-btn").setAttribute("disabled", "true");
+          document.getElementById("pass-btn").setAttribute("disabled", "true");
+          return;
+        }
+        
+        const before = game.scores[game.order];
+        const after = before + game.bank;
+
+        if (users[game.order] !== user_id) {
+          document.getElementById("roll-btn").setAttribute("disabled", "true");
+          document.getElementById("pass-btn").setAttribute("disabled", "true");
+        } else if (
+          game.bank === 0 ||
+          (before >= 500 && after < 600) ||
+          (before >= 900 && after < 1000)
+        ) {
+          document.getElementById("roll-btn").removeAttribute("disabled");
+          document.getElementById("pass-btn").setAttribute("disabled", "true");
+        } else if (true) {
+          document.getElementById("roll-btn").removeAttribute("disabled");
+          document.getElementById("pass-btn").removeAttribute("disabled");
+        }
+
+        document.getElementById(`user${game.order}`).className = "active";
+        document.getElementById(`user${game.order^1}`).className = "hide";
+      }
+      
+      let isShow;
+      function showMessage(msg) {
+        message.innerHTML = msg;
+        message.className = 'active';
+        isShow = true;
+        setTimeout(() => {
+          message.className = 'hide';
+          isShow = false;
+        }, 1000);
+      }
+      //#endregion
+
+      //#region onclick
+      document.getElementById("roll-btn").onclick = async function (e) {
+        //showMessage('Болт!<br>Олег, Ваш ход');
+        //throwDice(5);
+        wsClient.send(
+          JSON.stringify({
+            type: "move",
+            data: {
+              user_id: user_id,
+            },
+          })
+        );
+      };
+
+      document.getElementById("pass-btn").onclick = function (e) {
+        wsClient.send(
+          JSON.stringify({
+            type: "pass",
+            data: {
+              user_id: user_id,
+            },
+          })
+        );
+      };
+      //#endregion
+    </script>
+  </body>
+</html>

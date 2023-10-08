@@ -1,0 +1,32 @@
+{
+  "name": "farkle-dice-1000",
+  "version": "0.1.0",
+  "description": "Dice 1000 game with THREE.js and CANNON-Es",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@fastify/formbody": "^7.4.0",
+    "@fastify/static": "^6.9.0",
+    "@fastify/view": "^7.4.1",
+    "express": "^4.18.2",
+    "fastify": "^4.15.0",
+    "handlebars": "^4.7.7",
+    "md5": "^2.3.0",
+    "sync-request": "^6.1.0",
+    "ws": "^8.13.0"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/glitch-hello-node"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch"
+  ],
+  "author": "Oleg Pleskach"
+}
