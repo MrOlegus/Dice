@@ -5,7 +5,10 @@ const express = require("express");
 const app = express();
 
 const secret = "XNOkLeUFuOxTwMowAWr0jJzqsSUssL";
+//const secret = "Fm7EiQdutAbBFQbIkLJJplwGEBWZJl";
 const ggame_id = 241331;
+//const ggame_id = 25634;
+//const port = process.env.PORT;
 const port = 6111;
 
 app.use(express.static(__dirname + "/public"))
@@ -115,6 +118,8 @@ class Game {
   
   bolts - массив болтов
   
+  skips - массив пропусков хода
+  
   order - порядок хода
   
   bank - текущие очки
@@ -133,6 +138,7 @@ class Game {
   constructor() {
     this.wsClients = [];
     this.scores = [0, 0];
+    this.skips = [0, 0];
     this.bolts = [0, 0];
     this.order = Math.floor(Math.random() * 2);
     
@@ -150,10 +156,12 @@ class Game {
       if (this.isStarted && this.pending !== 'result') {
         this.time = Math.max(this.time - 1, 0);
         if (this.time <= 0) {
-          this.result =
+          if (this.skips[this.order] > 0)
+            this.result =
             this.order === 0
               ? this.users[1].user_id
               : this.users[0].user_id;
+          this.skip();
         }
         if (this.result !== null) clearInterval(interval_id_2);
       }
@@ -331,6 +339,15 @@ class Game {
     this.time = 20;
     this.bolts[this.order] = 0;
     this.dice = 5;
+    this.order = (this.order + 1) % this.users.length;
+  }
+  
+  skip() {
+    this.bank = 0;
+    this.current = 0;
+    this.time = 20;
+    this.dice = 5;
+    this.skips[this.order]++;
     this.order = (this.order + 1) % this.users.length;
   }
   
